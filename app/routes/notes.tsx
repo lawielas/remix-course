@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getStoredNotes, storeNotes } from "~/data/notes";
 import NewNote from "../components/NewNote";
+import { redirect } from "@remix-run/react";
 
 
 export default function Notes() {
@@ -8,3 +11,15 @@ export default function Notes() {
     </main>
   )
 }
+
+export const action = async ({request}: any) => {
+  const formData = await request.formData()
+  const noteData = Object.fromEntries(formData)
+  const existingNotes = await getStoredNotes()
+  noteData.id = new Date().toISOString()
+
+  const updatedNotes = existingNotes.concat(noteData)
+  await storeNotes(updatedNotes)
+
+  return redirect('/notes')
+} 
